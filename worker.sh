@@ -15,6 +15,11 @@ exec_build() {
   image=$1
   code_path=$2
 
+  if [ "$(docker images --quiet $image 2> /dev/null)" != "" ]; then
+    # TODO: we may add this as an option
+    echo "***** Removing old docker image $image to build the new one"
+    docker rmi "$image"
+  fi
   docker build --tag "$image" "$code_path"
 }
 
