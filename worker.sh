@@ -13,7 +13,7 @@ exec_build() {
 	image=$1
 	code_path=$2
 
-	docker build -t "$image" "$code_path"
+	docker build --tag "$image" "$code_path"
 }
 
 exec_delete() {
@@ -26,7 +26,8 @@ exec_run() {
 	image=$1
 	data_path=$2
 
-	docker run -it --rm -v=$data_path:/app/data/ $image
+	docker run --user=$(id -u) --interactive --tty --rm \
+               --volume=$data_path:/app/data/ $image
 }
 
 exec_all() {
