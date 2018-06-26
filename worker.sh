@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 exec_prepare() {
   git_url=$1
   code_path=$2
@@ -26,24 +28,30 @@ exec_run() {
   image=$1
   data_path=$2
 
-  docker run --user=$(id -u) --interactive --tty --rm \
-               --volume=$data_path:/app/data/ $image
+  docker run --interactive --tty --rm --volume=$data_path:/app/data/ $image
 }
 
 exec_all() {
   temp_dir=$(mktemp -d)
-  echo "Working on $temp_dir"
+  echo -e "***** Working on $temp_dir"
+
   git_url=$1
   project_name=$(basename $(echo $git_url | sed 's/\.git//' ))
   code_path=$temp_dir/code
   data_path=$temp_dir/data
 
+  echo -e "\n\n***** Cloning repository to $code_path"
   exec_prepare "$git_url" "$code_path"
-  git_commit=$(cd $code_path && git rev-parse HEAD)
 
+  git_commit=$(cd $code_path && git rev-parse HEAD)
   image=$USER/$project_name:${git_commit:0:8}
+  echo -e "\n\n***** Building image $image"
   exec_build "$image" "$code_path"
+
+  echo -e "\n\n***** Running image $image"
   exec_run "$image" "$data_path"
+
+  echo -e "\n\n***** Done! Access your files in: $data_path"
 }
 
 USAGE="ERROR - Usage: $0 <build|delete|run|all> [parameters]"
