@@ -15,12 +15,7 @@ crawler que desejar. Siga os seguintes passos:
   como no exemplo:
 
 ```bash
-git_url="https://github.com/turicas/socios-brasil.git"
-image="turicas/socios-brasil:1.0.0"
-code_path="/tmp/code-socios-brasil"
-data_path="/tmp/data-socios-brasil"
-
-./worker.sh all $git_url $image $code_path $data_path
+./worker.sh all https://github.com/turicas/socios-brasil.git
 ```
 
 Você precisará do Docker e a primeira vez que executará o comando ele demorará
@@ -32,13 +27,13 @@ altere o `runtime.txt`).
 
 O comando `worker.sh all` executará os seguintes passos:
 
-- Clonar o repositório em `$git_url` e colocá-lo em `$code_path` (diretório na
-  máquina host, não no container);
+- Clonar o repositório em `$git_url` e colocá-lo em
+  `[diretório temporário]/code` (diretório na máquina host, não no container);
 - Copiar os arquivos `Dockerfile`, `.dockerignore` e `runtime.txt` desse
-  repositório para `$git_url`;
-- Executar a criação da imagem do container (de nome `$image`) a partir de
-  `$code_path`;
+  repositório para `[diretório temporário]/code`;
+- Executar a criação da imagem do container (de nome
+  `$USER/$project_name:$git_commit`) a partir de `[diretório temporário]/code`;
 - Executar o script `run.sh` dentro da imagem;
 
-Ao final do processo você poderá acessar `$data_path` na máquina host para
-acessar os arquivos gerados pelo script.
+Ao final do processo você poderá acessar `[diretório temporário]/data` na
+máquina host para acessar os arquivos gerados pelo script.

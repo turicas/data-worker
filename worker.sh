@@ -31,14 +31,21 @@ exec_run() {
 }
 
 exec_all() {
+
+	temp_dir=$(mktemp -d)
+	echo "Working on $temp_dir"
 	git_url=$1
-	image=$2
-	code_path=$3
-	data_path=$4
+	project_name=$(basename $(echo $git_url | sed 's/\.git//' ))
+	code_path=$temp_dir/code
+	data_path=$temp_dir/data
 
 	exec_prepare "$git_url" "$code_path"
+	git_commit=$(cd $code_path && git rev-parse HEAD)
+
+	image=$USER/$project_name:${git_commit:0:8}
 	exec_build "$image" "$code_path"
 	exec_run "$image" "$data_path"
+
 }
 
 USAGE="ERROR - Usage: $0 <build|delete|run|all> [parameters]"
@@ -72,11 +79,11 @@ elif [ "$1" = "run" ]; then
 	fi
 
 elif [ "$1" = "all" ]; then
-	if [ -z "$5" ]; then
-		echo "ERROR - Usage: $0 all <git-url> <image-name> <host-code-path> <host-data-path>"
+	if [ -z "$2" ]; then
+		echo "ERROR - Usage: $0 all <git-url>"
 		exit 1
 	else
-		exec_all "$2" "$3" "$4" "$5"
+		exec_all "$2"
 	fi
 
 else
